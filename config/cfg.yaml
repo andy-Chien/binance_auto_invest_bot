@@ -1,0 +1,40 @@
+api_key: 
+api_secret: 
+
+
+# symbol: symble of the trading pair e.g. BTCUSDT
+# amount: the amount of base currency. e.g. for BTCUSDT, it's amount of USDT
+# frequency: WEEKLY or DAILY or HOURLY or MINUTELY
+# time: for WEEKLY: (wd, h, m), DAILY: (h, m), HOURLY: (m), MINUTELY: ()
+#       wd: [0~6] 0 = Monday, 6 = Sunday
+#       h: [0~23]
+#       m: [0~59]
+
+# order list example
+# order_list:
+#   - symbol: BTCUSDT
+#     amount: 1000.0
+#     frequency: WEEKLY
+#     time: [3, 8, 0]
+#   - symbol: ETHUSDT
+#     amount: 100.0
+#     frequency: DAILY
+#     time: [23, 59]
+#   - symbol: BTCUSDT
+#     amount: 10.0
+#     frequency: HOURLY
+#     time: [30]
+#   - symbol: ETHUSDT
+#     amount: 5.0
+#     frequency: MINUTELY
+#     time: []
+
+order_list:
+  - symbol: 
+    amount: 
+    frequency: 
+    time: []
+  - symbol: 
+    amount: 
+    frequency: 
+    time: []
