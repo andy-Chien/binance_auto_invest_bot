@@ -23,16 +23,37 @@ class AutoInvestBot:
 
         self.history_dir = os.path.dirname(os.path.abspath(__file__)) + '/../trading_history/'
 
-        
         cfg_data = self.read_cfg(cfg_path)
+
+        self.url_list = [
+            'https://api.binance.com',
+            'https://api1.binance.com',
+            'https://api2.binance.com',
+            'https://api3.binance.com'
+        ]
+        self.api_key = cfg_data['api_key']
+        self.api_secret = cfg_data['api_secret']
         self.client = Spot(cfg_data['api_key'], cfg_data['api_secret'], 
-                           base_url="https://testnet.binance.vision")
+                           base_url=self.url_list[0])
+        self.url_list.append(self.url_list.pop(0))
+
         self.order_list = cfg_data['order_list']
 
         if self.check_setting(self.order_list):
             self.logger.info('Order list checked.')
         else:
             raise ValueError(f"Some thing wrong in order list")
+        
+    def change_base_url(self):
+        self.client = Spot(self.api_key, self.api_secret, 
+                           base_url=self.url_list[0])
+        self.url_list.append(self.url_list.pop(0))
+        try:
+            self.client.time()
+        except:
+            self.logger.warn("Try connecting to a different server.")
+            self.change_base_url()
+        
 
     def read_cfg(self, cfg_path):
         root, extension = os.path.splitext(cfg_path)
@@ -136,6 +157,10 @@ class AutoInvestBot:
             )
             if error.error_code == -1013:
                 self.logger.error("[ERROR]: Order amount is too low!")
+        except:
+            self.logger.warning("Try connecting to a different server.")
+            self.change_base_url()
+            self.market_buy(order)
 
     def main_loop(self):
         while self.update_sys_time():
