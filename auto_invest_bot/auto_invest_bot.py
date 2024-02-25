@@ -139,45 +139,61 @@ class AutoInvestBot:
             'type': 'MARKET',
             'quoteOrderQty': order['amount'],
         }
+        now = datetime.datetime.now()
+        zp = lambda x: '0' + str(x) if x < 10 else x
+        ny, nm, nd = now.year, zp(now.month), zp(now.day)
+        nh, nmi, ns = zp(now.hour), zp(now.minute), zp(now.second)
         try:
             res = self.client.new_order(**params)
             fill = res['fills'][-1]
-            now = datetime.datetime.now()
-            ny, nm, nd, nh, nmi, ns = now.year, now.month, now.day, now.hour, now.minute, now.second
-            trade_info = '{}/{}/{}, {}:{}:{}, {}, status: {}, price: {}, qty: {}, amount: {} \n'.format(
-                            ny, nm, nd, nh, nmi, ns, res['symbol'], res['status'], fill['price'], \
-                            res['executedQty'], res['cummulativeQuoteQty'])
+            trade_info = ('{}/{}/{}, {}:{}:{}, {}, '
+                'status: {}, price: {}, qty: {}, amount: {} \n'
+                ).format(ny, nm, nd, nh, nmi, ns,
+                res['symbol'], res['status'], fill['price'],
+                res['executedQty'], res['cummulativeQuoteQty']
+            )
             self.logger.info(trade_info)
             with open(self.history_dir + '{}_{}'.format(ny, nm) + '.history.txt', 'a') as file:
                 file.write(trade_info)
             
         except ClientError as error:
-            self.logger.error(
-                "Found error. status: {}, error code: {}, error message: {}".format(
-                    error.status_code, error.error_code, error.error_message
-                )
+            trade_info = ('[Error]. {}/{}/{}, {}:{}:{}, {}, '
+                'status: {}, error code: {}, error message: {} \n'
+                ).format(ny, nm, nd, nh, nmi, ns,
+                order['symbol'], error.status_code,
+                error.error_code, error.error_message
             )
             if error.error_code == -1013:
-                self.logger.error("[ERROR]: Order amount is too low!")
+                trade_info += ', Order amount is too low!'
+            self.logger.error(trade_info)
+            with open(self.history_dir + '{}_{}'.format(ny, nm) + '.history.txt', 'a') as file:
+                file.write(trade_info)
         except:
-            self.logger.warning("Try connecting to a different server.")
+            trade_info = ('[Warn]. {}/{}/{}, {}:{}:{}, {}, '
+                'Server issues, Trying to connect to antoher server.'
+                ).format(ny, nm, nd, nh, nmi, ns, order['symbol']
+            )
+            self.logger.warning(trade_info)
+            with open(self.history_dir + '{}_{}'.format(ny, nm) + '.history.txt', 'a') as file:
+                file.write(trade_info)
             self.change_base_url()
             self.market_buy(order)
 
     def main_loop(self):
         while self.update_sys_time():
             closest_time = float('inf')
+            seconds_30 = 30.0
             tmp_order_list = []
             for order in self.order_list:
                 time_difference = \
                     (order['sys_time'] - datetime.datetime.now()).total_seconds()
                 if time_difference < closest_time:
                     closest_time = time_difference
-                if time_difference < 30.0:
+                if time_difference < seconds_30:
                     tmp_order_list.append(order)
 
-            if 30.0 < closest_time < float('inf'):
-                time.sleep(closest_time - 30.0)
+            if seconds_30 < closest_time < float('inf'):
+                time.sleep(closest_time - seconds_30)
 
             for order in tmp_order_list:
                 time_difference = \
