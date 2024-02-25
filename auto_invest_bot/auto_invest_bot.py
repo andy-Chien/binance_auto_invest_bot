@@ -5,23 +5,25 @@ import zipfile
 import getpass
 import logging
 import datetime
+import argparse
 from binance.spot import Spot
 from binance.error import ClientError
 
 class AutoInvestBot:
-    def __init__(self):
+    def __init__(self, cfg_fname):
         self.logger = logging.getLogger("logger")
         c_handler = logging.StreamHandler()
         self.logger.addHandler(c_handler)
         self.logger.setLevel(logging.DEBUG)
 
-        cfg_path = os.path.dirname(os.path.abspath(__file__)) + '/../config/cfg.yaml.zip'
+        pkg_path = os.path.dirname(os.path.abspath(__file__)) + '/../'
+        cfg_path = pkg_path + 'config/' + cfg_fname
         if not os.path.exists(cfg_path):
             cfg_path, _ = os.path.splitext(cfg_path)
             if not os.path.exists(cfg_path):
                 raise ValueError(f"Config file not found: {cfg_path}")
 
-        self.history_dir = os.path.dirname(os.path.abspath(__file__)) + '/../trading_history/'
+        self.history_dir = pkg_path + 'trading_history/'
 
         cfg_data = self.read_cfg(cfg_path)
 
@@ -186,5 +188,10 @@ class AutoInvestBot:
 
 
 if __name__ == "__main__":
-    bot = AutoInvestBot()
+    parser = argparse.ArgumentParser(description='Auto invest bot via Binance API.')
+    parser.add_argument('cfg_fname', default='cfg.yaml.zip', nargs='?', type=str,
+                        help='Name of config file.')
+    args = parser.parse_args()
+
+    bot = AutoInvestBot(args.cfg_fname)
     bot.main_loop()
