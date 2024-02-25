@@ -1,8 +1,8 @@
 # binance_auto_invest_bot
 
-  - Regularly execute the spot trading pairs you desired.  
+  - Regularly execute the spot trading pairs you want.  
   - Supports weekly, daily, hourly, and minutely trading frequencies.  
-  - Supports multiple frequency trading at the same time.  
+  - Multiple frequency trading can be excuted at the same time.  
 
 ## Install dependency packages
 
@@ -19,16 +19,17 @@ pip install binance-connector
 
 ### Create an encrypted config file
 
+  - The command zip -e will ask to set a password.
 ```
 cd config
-zip --password <your password> cfg.yaml.zip cfg.yaml
+zip -e cfg.yaml.zip cfg.yaml
 ```
 
 ### Edit config file
 
-  - Open cfg.yaml inside cfg.yaml.zip  
+  - Open cfg.yaml inside cfg.yaml.zip, don't use the original one which is not encrypted  
   - Copy and paste your API Key and Secret Key.  
-  - Edit the order list follow the hints.  
+  - Edit the order list follow the hints in config file.  
 
 ## Run
 
